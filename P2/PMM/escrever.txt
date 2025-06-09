@@ -1,0 +1,4 @@
+numero de itens: 4  numero de mochilas: 2
+vet pes items 10 7 6 9 
+vet val items 5 3 4 8 
+vet cap mochilas 10 5 
