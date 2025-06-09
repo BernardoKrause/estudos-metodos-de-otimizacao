@@ -29,7 +29,8 @@ typedef struct tSolucao {
 
 void ler_dados(const char* arq);
 void escrever_dados(const char* arq);
-void criar_solucao(Solucao& sol);
+void criar_solucao_aleatoria(Solucao& sol);
+void criar_solucao_gulosa(Solucao& sol);
 void calc_fo(Solucao& sol);
 void clonar_sol(Solucao& sol, Solucao& clone);
 void gerar_vizinho(Solucao& sol);
