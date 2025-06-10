@@ -5,10 +5,10 @@ void ler_dados(const char* arq) {
     
     fscanf(f, "%d %d", &num_items, &num_mochilas);
     for (int i = 0; i < num_items; i++) {
-        fscanf(f, "%d", &vet_pes_items[i]);
+        fscanf(f, "%d", &vet_val_items[i]);
     }
     for (int i = 0; i < num_items; i++) {
-        fscanf(f, "%d", &vet_val_items[i]);
+        fscanf(f, "%d", &vet_pes_items[i]);
     }
     for (int i = 0; i < num_mochilas; i++) {
         fscanf(f, "%d", &vet_cap_moc[i]);
@@ -53,7 +53,6 @@ void criar_solucao_gulosa(Solucao& sol) {
         for (int j = 0; j < num_mochilas; j++) {
             if ((sol.vet_pes_moc[j] + vet_pes_items[i]) < vet_cap_moc[j]) {
                 sol.vet_sol[i] = j;
-                printf("%d", vet_pes_items[i]);
                 sol.vet_pes_moc[j] += vet_pes_items[i];
                 break;
             }
@@ -66,7 +65,8 @@ void calc_fo(Solucao& sol) {
     sol.fo = 0;
 
     for (int i = 0; i < num_items; i++) {
-        sol.fo += vet_val_items[i];
+        if (sol.vet_sol[i] != -1)
+            sol.fo += vet_val_items[i];
     }
 
     for (int i = 0; i < num_mochilas; i++) {
@@ -86,8 +86,7 @@ void gerar_vizinho(Solucao& sol) {
     do
     {
         sol.vet_sol[item] = (rand() % (num_mochilas + 1)) - 1; // pego uma mochila aleatoria e coloco esse item nela (-1,0 ou 1)
-    } while (sol.vet_sol[item] == mochila);
-
+    } while (sol.vet_sol[item] == mochila && sol.vet_pes_moc[mochila] + sol.vet_sol[item] > vet_cap_moc[mochila]);
 
     if (mochila != -1) { // se o item tava em alguma mochila
         sol.vet_pes_moc[mochila] -= vet_pes_items[item]; // tira o peso do item da mochila atual
@@ -131,7 +130,7 @@ int main () {
         clonar_sol(sol, clone);
         gerar_vizinho(clone);
 
-        if (clone.fo >= sol.fo) {
+        if (clone.fo > sol.fo) {
            clonar_sol(clone, sol); 
         }
     }
