@@ -53,7 +53,9 @@ void criar_solucao_gulosa(Solucao& sol) {
         for (int j = 0; j < num_mochilas; j++) {
             if ((sol.vet_pes_moc[j] + vet_pes_items[i]) < vet_cap_moc[j]) {
                 sol.vet_sol[i] = j;
+                printf("%d", vet_pes_items[i]);
                 sol.vet_pes_moc[j] += vet_pes_items[i];
+                break;
             }
         }
     }
@@ -65,7 +67,6 @@ void calc_fo(Solucao& sol) {
 
     for (int i = 0; i < num_items; i++) {
         sol.fo += vet_val_items[i];
-        sol.vet_pes_moc[sol.vet_sol[i]] += vet_pes_items[i];
     }
 
     for (int i = 0; i < num_mochilas; i++) {
@@ -80,16 +81,21 @@ void clonar_sol(Solucao& sol, Solucao& clone) {
 void gerar_vizinho(Solucao& sol) {
     int item, mochila;
     item = rand() % num_items; // vou pegar um item aleatório
-    mochila = sol.vet_sol[item];
+    mochila = sol.vet_sol[item]; // pegar a mochila desse item
 
     do
     {
-        sol.vet_sol[item] = (rand() % (num_mochilas + 1)) - 1;
-        if (sol.vet_pes_moc[mochila] + vet_pes_items[item] < vet_cap_moc[mochila]) {
-            sol.vet_pes_moc[mochila] -= vet_pes_items[item]; 
-            sol.vet_pes_moc[sol.vet_sol[item]] += vet_pes_items[item]; 
-        }
+        sol.vet_sol[item] = (rand() % (num_mochilas + 1)) - 1; // pego uma mochila aleatoria e coloco esse item nela (-1,0 ou 1)
     } while (sol.vet_sol[item] == mochila);
+
+
+    if (mochila != -1) { // se o item tava em alguma mochila
+        sol.vet_pes_moc[mochila] -= vet_pes_items[item]; // tira o peso do item da mochila atual
+    }
+
+    if (sol.vet_sol[item] != -1) {
+        sol.vet_pes_moc[sol.vet_sol[item]] += vet_pes_items[item];
+    }
     
     calc_fo(sol);
 }
@@ -107,9 +113,6 @@ void escrever_solucao(const Solucao& s)
 }
 
 int main () {
-    // ERROS:
-    // Tá deixando entrar o mesmo item em 2 mochilas
-    // na hora de clonar tá somando errado os pesos 
     Solucao sol, clone;
     // Solucao sol;
 
@@ -120,39 +123,19 @@ int main () {
 
     // criar_solucao_aleatoria(sol);
     criar_solucao_gulosa(sol);
-    
-    for (int i = 0; i < num_mochilas; i++) {
-        printf("mochila %d \n", sol.vet_pes_moc[i]);
-        for (int j = 0; j < num_items; j++) {
-            printf("%d ", sol.vet_sol[j]);
-        }
+    calc_fo(sol); 
 
-        printf("\n");
-    }
-    
-    calc_fo(sol);
-    printf("%.2f\n", sol.fo);
+    // escrever_solucao(sol);
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100000; i++) {
         clonar_sol(sol, clone);
-        // printf("clone a: %.2f\n", clone.fo);
         gerar_vizinho(clone);
-        
-        for (int i = 0; i < num_mochilas; i++) {
-            printf("mochila clone %d \n", clone.vet_pes_moc[i]);
-            for (int j = 0; j < num_items; j++) {
-                printf("%d ", clone.vet_sol[j]);
-            }
 
-            printf("\n");
-        }
-        // printf("clone d: %.2f\n", clone.fo);
         if (clone.fo >= sol.fo) {
            clonar_sol(clone, sol); 
         }
     }
         
     escrever_solucao(sol);
-
     return 0;
 }
