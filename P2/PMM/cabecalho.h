@@ -6,9 +6,10 @@
 #include <string.h>
 #include <time.h>
 #include <iostream>
+#include <math.h>
 
-#define MAX_ITENS 20
-#define MAX_MOCHILAS 10
+#define MAX_ITENS 500
+#define MAX_MOCHILAS 2000
 #define ALPHA 100
 
 #define MAX(X,Y)((X > Y) ? (X) : (Y))
@@ -31,6 +32,7 @@ void ler_dados(const char* arq);
 void escrever_dados(const char* arq);
 void criar_solucao_aleatoria(Solucao& sol);
 void criar_solucao_gulosa(Solucao& sol);
+void criar_solucao_aleatoria_gulosa(Solucao& sol);
 void calc_fo(Solucao& sol);
 void clonar_sol(Solucao& sol, Solucao& clone);
 void gerar_vizinho(Solucao& sol);

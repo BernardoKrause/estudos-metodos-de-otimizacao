@@ -61,6 +61,30 @@ void criar_solucao_gulosa(Solucao& sol) {
 
 }
 
+void criar_solucao_aleatoria_gulosa(Solucao& sol) {
+    int itens_comeco = ceil(num_items * 0.1);
+    int vet_itens[itens_comeco];
+
+    memset(sol.vet_pes_moc, 0, sizeof(sol.vet_pes_moc));
+    memset(sol.vet_sol, -1, sizeof(sol.vet_sol));
+    
+    for (int i = 0; i < itens_comeco; i++) {
+        vet_itens[i] = rand() % num_items;
+    }
+
+    for (int i = 0; i < itens_comeco; i++) {
+        for (int j = 0; j < num_mochilas; j++) {
+            if ((sol.vet_pes_moc[j] + vet_pes_items[vet_itens[i]]) < vet_cap_moc[j]) {
+                sol.vet_sol[vet_itens[i]]  = j;
+                sol.vet_pes_moc[j] += vet_pes_items[vet_itens[i]];
+                break;
+            }
+        }
+    }
+
+
+}
+
 void calc_fo(Solucao& sol) {
     sol.fo = 0;
 
@@ -115,18 +139,19 @@ int main () {
     Solucao sol, clone;
     // Solucao sol;
 
-    srand(time(NULL));
+    // srand(time(NULL));
 
-    ler_dados("pmm1.txt");
+    ler_dados("pmm3.txt");
     // escrever_dados("escrever.txt");
 
     // criar_solucao_aleatoria(sol);
-    criar_solucao_gulosa(sol);
+    // criar_solucao_gulosa(sol);
+    criar_solucao_aleatoria_gulosa(sol);
     calc_fo(sol); 
 
     // escrever_solucao(sol);
 
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 1000000; i++) {
         clonar_sol(sol, clone);
         gerar_vizinho(clone);
 
