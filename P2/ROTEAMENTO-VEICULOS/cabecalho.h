@@ -16,12 +16,14 @@ typedef struct tSolucao {
 int num_cli, num_vei;
 int vet_dem_cli[MAX_CLI];
 int vet_cap_vei[MAX_VEI];
+int visitado[MAX_CLI];
 double mat_custo[MAX_CLI][MAX_CLI];
 
 void criar_solucao_aleatoria(Solucao& sol);
-// void calcular_fo2(Solucao& s);
 void calcular_fo(Solucao& sol);
 void ler_dados(const char* arq);
+void clonar_solucao(Solucao& solucao, Solucao& clone);
+void gerar_vizinho(Solucao& sol);
 
 
 #endif // PROVA1_H_INCLUDED

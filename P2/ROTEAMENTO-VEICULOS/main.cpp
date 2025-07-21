@@ -32,34 +32,38 @@ void ler_dados(const char* arq)
 
 void criar_solucao_aleatoria(Solucao& sol)
 {
-    int num_clientes;
-    memset(sol.vet_qtd_cli_vei, 0, sizeof(sol.vet_qtd_cli_vei));
+    memset(&sol.vet_qtd_cli_vei, 0, sizeof(sol.vet_qtd_cli_vei));
+    memset(&sol.vet_pes_vei, 0, sizeof(sol.vet_pes_vei));
+    memset(&visitado, 0, sizeof(visitado));
+
+    int counter = 0, cli, vei, pos;
+    while (counter < num_cli) {
+        cli = 1 + rand() % num_cli;
+        if (visitado[cli] == 1) continue;
+
+        vei = rand() % num_vei;
+        pos = sol.vet_qtd_cli_vei[vei];
+
+        sol.mat_sol[vei][pos] = cli;
+        sol.vet_qtd_cli_vei[vei] ++;
+        sol.vet_pes_vei[vei] += vet_dem_cli[cli];
+        visitado[cli] = 1;
+        counter++;
+    }
+
     for (int i = 0; i < num_vei; i++) {
-        num_clientes = rand() % num_cli;
-        for (int j = 0; j < num_clientes; j++) {
-            sol.mat_sol[i][sol.vet_qtd_cli_vei[i]] = rand() % num_cli;
-            sol.vet_qtd_cli_vei[i]++;
+        printf("%d ", sol.vet_qtd_cli_vei[i]);
+    }
+
+    printf("\n");
+
+    for (int i = 0; i < num_vei; i++) {
+        for (int j = 0; j < num_cli; j++) {
             printf("%d ", sol.mat_sol[i][j]);
         }
         printf("\n");
     }
 }
-
-// void calcular_fo2(Solucao& s)
-// {
-//     int vei = 0;
-//     s.fo = 0;
-//     memset(&s.vet_pes_vei, 0, sizeof(s.vet_pes_vei));
-//     for (int j = 1; j < num_cli + num_vei + 1; j++)
-//     {
-//         if (s.vet_sol[j] == 0)
-//             vei++;
-//         s.fo += mat_custo[s.vet_sol[j-1]][s.vet_sol[j]];
-//         s.vet_pes_vei[vei] += vet_dem_cli[s.vet_sol[j]];
-//     }
-//     for (int i = 0; i < num_vei; i++)
-//         s.fo += PESO_CAP * MAX(0, s.vet_pes_vei[i] - vet_cap_vei[i]);
-// }
 
 void calcular_fo(Solucao& sol)
 {
@@ -80,15 +84,67 @@ void calcular_fo(Solucao& sol)
     }
 }
 
+void clonar_solucao (Solucao& clone, Solucao& sol) {
+    memcpy(&clone, &sol, sizeof(sol));
+}
+
+void remover_cliente(Solucao& s, const int& vei, const int& pos) {
+    int cli = s.mat_sol[vei][pos]; // Salva antes de deslocar
+    for (int i = pos; i < s.vet_qtd_cli_vei[vei] - 1; i++)
+        s.mat_sol[vei][i] = s.mat_sol[vei][i + 1];
+    s.vet_qtd_cli_vei[vei]--;
+    s.vet_pes_vei[vei] -= vet_dem_cli[cli];
+}
+
+void inserir_cliente(Solucao& s, const int& vei, const int& pos, const int& cli) {
+    for (int i = s.vet_qtd_cli_vei[vei]; i > pos; i--)
+        s.mat_sol[vei][i] = s.mat_sol[vei][i - 1];
+    s.mat_sol[vei][pos] = cli;
+    s.vet_qtd_cli_vei[vei]++;
+    s.vet_pes_vei[vei] += vet_dem_cli[cli];
+}
+
+void gerar_vizinho(Solucao& sol) {
+    int vei1,vei2,pos1,pos2,cli;
+
+    do {
+        vei1 = rand() % num_vei;
+    } while (sol.vet_qtd_cli_vei[vei1] == 0);
+
+    do {
+        vei2 = rand() % num_vei;
+    } while (sol.vet_qtd_cli_vei[vei2] == 0 || vei1 == vei2);
+
+    pos1 = rand() % sol.vet_qtd_cli_vei[vei1];
+    pos2 = rand() % sol.vet_qtd_cli_vei[vei2];
+
+    cli = sol.mat_sol[vei1][pos1];
+
+    remover_cliente(sol, vei1, pos1);
+    inserir_cliente(sol, vei2, pos2, cli);
+}
+
 int main()
 {
     Solucao sol;
-    ler_dados("instancia-toy.txt");
+    Solucao clone;
+
+    srand(time(NULL));
+
+    ler_dados("instancia.txt");
 
     criar_solucao_aleatoria(sol);
     calcular_fo(sol);
 
-    // calcular_fo2(sol);
+    for (int i = 0; i < 100000; i++) {
+        clonar_solucao(clone, sol);
+        gerar_vizinho(clone);
+
+        if (clone.fo < sol.fo) {
+            clonar_solucao(sol, clone);
+        }
+    }
+
     printf("\n\nFO: %.2f\n", sol.fo);
 
     return 0;
